@@ -13,7 +13,7 @@ download_page(URL, HTML) :-
     close(In).
 
 parse_dates(Text, Month, Day) :-
-    re_matchsub("^.*?(Jan|Feb|Mar|April|May|June|July|Aug|Sept|Oct|Nov|Dec)[a-z]*[^0-9]+([0-9]+).*?", Text, Matches),
+    re_matchsub("^.*?(Jan|Feb|Mar|April|May|June|July|Aug|Sept|Oct|Nov|Dec)[a-z]*[^0-9]+([0-9]+).*?\\.(.?)", Text, Matches),
     print(Matches),
     dict_pairs(Matches, _, Pairs),
     memberchk(1-Month, Pairs),
@@ -24,14 +24,20 @@ parse_dates(Text, Month, Day) :-
     atom_number(Day, DayNum).
     day_number(DayNum). 
 
+% could put an if for feb if want
 day_number(D) :-
     between(0, 31, D).
 
 month_number("Jan", 1).
+month_number("January", 1).
 month_number("Feb", 2).
+month_number("February", 2).
 month_number("Mar", 3).
 month_number("March", 3).
+month_number("Apr", 4).
 month_number("April", 4).
+
+% these dates fall after term ends
 month_number("May", 5).
 month_number("June", 6).
 month_number("July", 7).
