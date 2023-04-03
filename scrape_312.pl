@@ -3,9 +3,8 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 
+% testing on 312 url
 url("https://www.cs.ubc.ca/~poole/cs312/2023/schedule.html").
-
-% there is def a re_match("Mar 1")
 
 download_page(URL, HTML) :-
     http_open(URL, In, []),
@@ -63,4 +62,10 @@ run_web_scraper :-
     url(URL),
     download_page(URL, HTML),
     extract_data(HTML, Data),
-    writeln(Data).
+    writeln(Data),
+
+    open('output.txt', write, Out),
+    foreach(member(Element, Data), writeln(Out, Element)),
+    close(Out).
+
+% to load: run_web_scraper.
