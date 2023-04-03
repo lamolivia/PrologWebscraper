@@ -4,7 +4,6 @@
 :- use_module(library(xpath)).
 
 url("https://www.cs.ubc.ca/~poole/cs312/2023/schedule.html").
-data_to_extract([title, description, keywords]).
 
 download_page(URL, HTML) :-
     http_open(URL, In, []),
@@ -13,25 +12,14 @@ download_page(URL, HTML) :-
 
 extract_data(HTML, Data) :-
     findall(Value, (
-        member(TagName, Data),
-        xpath(HTML, //TagName, TextNode),
+        xpath(HTML, //ul, UL),
+        xpath(UL, //li(text), TextNode),
         atom_string(Value, TextNode)
     ), DataValues),
-    maplist(atom_string, Data, DataStrings),
-    maplist(atom_string, DataValues, DataValueStrings),
-    Data =.. [DataStrings, DataValueStrings].
-
-store_data(_) :-
-    open('data.csv', append, File),
-    maplist(write_csv_line(File), Data),
-    close(File).
-
-write_csv_line(File, Data) :-
-    csv_write_stream(File, [Data], []).
+    maplist(atom_string, DataValues, Data).
 
 run_web_scraper :-
     url(URL),
     download_page(URL, HTML),
-    data_to_extract(Data),
-    extract_data(HTML, DataValues),
-    store_data(DataValues).
+    extract_data(HTML, Data),
+    writeln(Data).
