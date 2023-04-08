@@ -1,4 +1,5 @@
 :- module(scheduling).
+:- include(scheduleutils).
 
 /*
 % we read info from scraper here
@@ -21,20 +22,19 @@ read_lines(Stream, [Line|Rest]) :-
 
 
 
-% the main function to make a schedule.
-% the function takes a list of class names, and creates a schedule for the student including all of those classes.
-start_scheduling(Classes, Data, S) :-
-    make_schedule(map_find_components(Classes, Data), S).
 
-% converts the names of the courses into their comopnents by searching components in the passed data.
-map_find_components([], L, L).
-map_find_components([H|T], L, append(H1, L1)) :-
-    H1 is find_components(H, Data),
-    map_find_components(T, L, L1).
+
+% converts the names of the courses into their components by searching components in the passed data.
+map_find_components([], Data, L, L).
+map_find_components([H|T], Data, L, L2) :-
+    append(H1, L1, L2),
+    map_find_components(T, Data, L, L1),
+    find_components(H, Data, H1).
 
 % searches for a class with the given name, and returns a list of its components.
+find_components(_, [], []).
 find_components(Name, [class(Name, Components)|_], Components).
-find_components(Name, [_|R]) :- find_components(Name, R).
+find_components(Name, [_|R], C) :- find_components(Name, R, C).
 
 % creates a schedule for the user using the list of comopnents provided. with each component, it will check if a valid schedule can be made using the
 % first set of durations. if so, that schedule will be used. if not, it will search through the remaining durations.
@@ -54,10 +54,17 @@ make_schedule([component(Name, Type, [_|D1])|R], S, S1) :-
 make_schedule([component(Name, Type, [])|R], S, S1) :-
     make_schedule(R, S, S1).
 
-% given a list of components, remove every duration for each component that overlaps with the given registration.
-remove_overlaps_list([], L, L).
-remove_overlaps_list(DL, [component(Name, Type, DL1)|R], L, [component(Name, Type, D1)|L1]) :-
-    D1 is remove_overlaps(DL, DL1),
+% given a list of components, remove every duration for each component that overlaps with the given list of durations, DL.
+remove_overlaps_list(DL, [], L, L).
+remove_overlaps_list(DL, [component(Name, Type, D)|R], L, L1) :-
+    remove_overlaps_durs(DL, D, []),
+    remove_overlaps_list(DL, R, L, L1).
+remove_overlaps_list(DL, [component(Name, Type, D)|R], L, [component(Name, Type, D1)|L1]) :-
+    remove_overlaps_durs(DL, D, D1),
     remove_overlaps_list(DL, R, L, L1).
 
-
+% the main function to make a schedule.
+% the function takes a list of class names, and creates a schedule for the student including all of those classes.
+start_scheduling(Classes, Data, S) :-
+    make_schedule(C, S, []),
+    map_find_components(Classes, Data, [], C).
