@@ -1,5 +1,5 @@
 :- module(scheduling).
-:- use_module(scheduleutils).
+
 /*
 % we read info from scraper here
 read_output_file(Lines) :-
@@ -18,6 +18,7 @@ read_lines(Stream, [Line|Rest]) :-
 
 % setting up the scheduling algorithm
 */
+
 
 
 % the main function to make a schedule.
