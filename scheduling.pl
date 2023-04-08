@@ -1,4 +1,5 @@
 :- module(scheduling).
+:- use_module(scheduleutils).
 /*
 % we read info from scraper here
 read_output_file(Lines) :-
@@ -17,77 +18,45 @@ read_lines(Stream, [Line|Rest]) :-
 
 % setting up the scheduling algorithm
 */
-% predicate that reflects a 24-hour time, in hours and minutes
-time(Hour, Minute).
 
-% predicate reflecting the duration of a component of a class. it has the time it starts and the time it ends, and the day of the week it occurs on
-duration(Start, End, Day).
-% a component of a class, such as a lecture or lab. it has the name of the course, the component type,
-% and a list of possible durations.
-% example: a lecture in 312 that can be taken at 10 AM or noon on tuesdays and thursdays would be the following format:
-% component("CS312", "Lecture", [[duration(time(10,00), time(11,20, T)), duration(time(10,00), time(11,20, Th))],
-%                               [duration(time(12,00), time(1,20, T)), duration(time(12,00), time(1,20, Th))]])
-component(Name, Type, [[duration(Start, End, Day)]]).
-
-% a class with a list of all the required components. 
-class(Name, [Components]).
-
-% a registration in a class. it has the name of the class and the type of activity that has been registered, as well as
-% the durations of that activity.
-registration(Name, Type, [duration(Start, End, Day)]).
 
 % the main function to make a schedule.
 % the function takes a list of class names, and creates a schedule for the student including all of those classes.
-make_schedule([], Data, S).
-make_schedule([Name|Rest], Data, S, S2) :-
-    make_schedule(Rest, Data, S1, S2),
-    schedule_class(find_class(Name, Data),S,S1).
+start_scheduling(Classes, Data, S) :-
+    make_schedule(map_find_components(Classes, Data), S).
 
-% searches out a class in the data by name.
-find_class(Name, [class(Name, [Components])|_], class(Name, [Components])).
-find_class(Name, [_|R]) :- find_class(Name, R).
+% converts the names of the courses into their comopnents by searching components in the passed data.
+map_find_components([], L, L).
+map_find_components([H|T], L, append(H1, L1)) :-
+    H1 is find_components(H, Data),
+    map_find_components(T, L, L1).
 
-% a program to register the user in all the components of a single class.
-% the function takes a class and the existing schedule, and returns a new schedule with all components added.
+% searches for a class with the given name, and returns a list of its components.
+find_components(Name, [class(Name, Components)|_], Components).
+find_components(Name, [_|R]) :- find_components(Name, R).
 
-% if a class has no components, the schedule is uneffected 
-schedule_class(class(Name, []), S, S).
-% if there are components, first call make_registration to register that component into the schedule at a valid time.
-% then, call itself recursively on the remaining components in the list.
-schedule_class(class(_, [H|T]), S, S2) :-
-    schedule_class(class(_, T), S1),
-    make_registration(H, S, S1).
+% creates a schedule for the user using the list of comopnents provided. with each component, it will check if a valid schedule can be made using the
+% first set of durations. if so, that schedule will be used. if not, it will search through the remaining durations.
 
-% takes a component with a list of its durations, and an existing schedule.
-% every component will have several possible durations, represented in the provided list. 
-% each item of the durations list is checked against the existing registrations to find a list with no overlap.
+% if the list of components is empty, return the existing schedule.
+make_schedule([], S, S).
+% if a valid schedule can be made with the current durations, make the registration,
+% and append it to the schedule returned by recursion.
+make_schedule([component(Name, Type, [D|_])|R], S, [R|S1]) :-
+    R is registration(Name, Type, D),
+    remove_overlaps_list(D, R, []),
+    make_schedule(R, S, S1).
+% if no valid schedule can be made, try the next durations
+make_schedule([component(Name, Type, [_|D1])|R], S, S1) :-
+    make_schedule([component(Name, Type, D1)|R], S, S1).
+% if a component is out of durations, do not register it.
+make_schedule([component(Name, Type, [])|R], S, S1) :-
+    make_schedule(R, S, S1).
 
-%
-make_registration(component(Name, Type, [H|T], [], [R])) :-
-    R = registration(Name, Type, H).
-make_registration(component(Name, Type, [H|T]), S, [R|S]) :-
-    no_overlaps(H, S), 
-    R = registration(Name, Type, H).
-make_registration(component(Name, Type, [H|T]), S, S1):-
-    make_registration(component(Name, Type, T), S, S1).
+% given a list of components, remove every duration for each component that overlaps with the given registration.
+remove_overlaps_list([], L, L).
+remove_overlaps_list(DL, [component(Name, Type, DL1)|R], L, [component(Name, Type, D1)|L1]) :-
+    D1 is remove_overlaps(DL, DL1),
+    remove_overlaps_list(DL, R, L, L1).
 
-no_overlaps(_, []) :- true.
-no_overlaps([], _) :- true.
-no_overlaps([H|T], S) :- 
-    no_dur_overlap(H, S),
-    no_overlaps(T, S).
 
-no_dur_overlap(_, []) :- true.
-no_dur_overlap(D, [registration(_, _, DL)|R]) :-
-    check_overlaps_list(D, DL),
-    no_dur_overlap(D, R).
-
-check_overlaps_list(D, [H|T]) :-
-    check_overlap(D, H),
-    check_overlaps_list(D, T).
-
-check_overlap(duration(S, E, D), check_overlap(S1, E1, D1)) :-
-    before(E1, S); before(E, S1); D \= D1.
-
-before(time(H, M), time(H1, M1)) :-
-    H < H1 ; H = H1, M < M1.
