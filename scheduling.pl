@@ -47,31 +47,35 @@ make_schedule([], S, S).
 % if a valid schedule can be made with the current durations, make the registration,
 % and append it to the schedule returned by recursion.
 make_schedule([component(Name, Type, [D|_])|R], S, [RG|S1]) :-
+    writeln("creating registration"),
     RG = registration(Name, Type, D),
-    make_schedule(R1, S, S1),
-    remove_overlaps_list(D, R, [], R1).
+    writeln(RG),
+    make_schedule(R, S, S1).
+    % remove_overlaps_list(D, R, [], R1).
 
 % if no valid schedule can be made, try the next durations
 make_schedule([component(Name, Type, [_|D1])|R], S, S1) :-
+    writeln("checking next durations"),
     make_schedule([component(Name, Type, D1)|R], S, S1).
 
-% if a component is out of durations, do not register it.
+% if a component is out of durations to try, do not register it.
 make_schedule([component(Name, Type, [])|R], S, S1) :-
+    writeln('skipping component'),
     make_schedule(R, S, S1).
+
+% clause if no other rules apply
+% make_schedule(_, S, S).
+    
 
 % REMOVE OVERLAPS LIST
 % given a list of components, remove every duration for each component that overlaps with the given list of durations, DL.
 remove_overlaps_list(_, [], L, L).
 
-% if a component has no possible durations to register left, it is removed from the list of components to be registered
-remove_overlaps_list(DL, [component(Name, Type, D)|R], L, L1) :-
-    remove_overlaps_durs(DL, D, []),
-    remove_overlaps_list(DL, R, L, L1).
-
 % recreate the component with invalid durations deleted, and append to the list from the recursive call
 remove_overlaps_list(DL, [component(Name, Type, D)|R], L, [component(Name, Type, D1)|L1]) :-
-    remove_overlaps_durs(DL, D, D1),
-    remove_overlaps_list(DL, R, L, L1).
+    write(Name),
+    remove_overlaps_list(DL, R, L, L1),
+    remove_overlaps_durs(DL, D, D1).
 
 % START SCHEDULING
 % the main function to make a schedule.

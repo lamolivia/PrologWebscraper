@@ -43,11 +43,12 @@ no_overlap(duration(S, E, D), [duration(S1, E1, D1)|T]) :-
     D \== D1,
     no_overlap(duration(S, E, D), T).
 no_overlap(duration(S, E, D), [duration(S1, E1, D1)|T]) :-
-    before(E1, S), before(E1, E), 
+    before(E1, S), 
     no_overlap(duration(S, E, D), T).
 no_overlap(duration(S, E, D), [duration(S1, E1, D1)|T]) :-
-    before(E, S1), before(E, E1),
+    before(E, S1),
     no_overlap(duration(S, E, D), T).
+no_overlap(_,_) :- false.
 
 % returns true if one clock_time happens before another.
 before(clock_time(H, M), clock_time(H1, M1)) :-
