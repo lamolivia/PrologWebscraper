@@ -24,9 +24,10 @@ registration(Name, Type, [duration(Start, End, Day)]).
 
 % each registration has a list of associated durs, so when this is called to remove all incompatible duration sublists from other components,
 % we need this recursive solution
+remove_overlaps_durs([], L, L).
 remove_overlaps_durs([D1|T], L, L2) :-
     remove_overlaps_durs(T, L1, L2),
-    L1 is remove_overlaps(D1, L).
+    remove_overlaps(D1, L, L1).
 
 % takes a duration, Dur and list of lists of durations. removes every item from the list where any of their durations overlap Dur.
 remove_overlaps(Dur, [], []).
@@ -39,7 +40,13 @@ remove_overlaps(Dur, [H|T], L1) :-
 % returns true only if no duration in the list overlaps the duration passed.
 no_overlap(_, []) :- true.
 no_overlap(duration(S, E, D), [duration(S1, E1, D1)|T]) :-
-    before(E1, S), before(E1, E) ; before(E, S1), before(E, E1); D \= D1,
+    D \== D1,
+    no_overlap(duration(S, E, D), T).
+no_overlap(duration(S, E, D), [duration(S1, E1, D1)|T]) :-
+    before(E1, S), before(E1, E), 
+    no_overlap(duration(S, E, D), T).
+no_overlap(duration(S, E, D), [duration(S1, E1, D1)|T]) :-
+    before(E, S1), before(E, E1),
     no_overlap(duration(S, E, D), T).
 
 % returns true if one clock_time happens before another.
