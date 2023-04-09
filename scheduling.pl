@@ -70,7 +70,6 @@ remove_overlaps_list(_, [], L, L).
 
 % recreate the component with invalid durations deleted, and append to the list from the recursive call
 remove_overlaps_list(DL, [component(Name, Type, D)|R], L, [component(Name, Type, D1)|L1]) :-
-    write(Name),
     remove_overlaps_list(DL, R, L, L1),
     remove_overlaps_durs(DL, D, D1).
 
