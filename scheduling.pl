@@ -47,7 +47,6 @@ make_schedule([], S, S).
 % if a valid schedule can be made with the current durations, make the registration,
 % and append it to the schedule returned by recursion.
 make_schedule([component(Name, Type, [D|_])|R], S, [RG|S1]) :-
-    writeln("creating registration"),
     RG = registration(Name, Type, D),
     writeln(RG),
     make_schedule(R, S, S1).
@@ -55,12 +54,10 @@ make_schedule([component(Name, Type, [D|_])|R], S, [RG|S1]) :-
 
 % if no valid schedule can be made, try the next durations
 make_schedule([component(Name, Type, [_|D1])|R], S, S1) :-
-    writeln("checking next durations"),
     make_schedule([component(Name, Type, D1)|R], S, S1).
 
 % if a component is out of durations to try, do not register it.
 make_schedule([component(Name, Type, [])|R], S, S1) :-
-    writeln('skipping component'),
     make_schedule(R, S, S1).
 
 % clause if no other rules apply

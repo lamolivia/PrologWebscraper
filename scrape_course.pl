@@ -2,16 +2,17 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 
+
 url(Dept, CourseNum,URL) :-
     atomic_list_concat(['https://courses-test.students.ubc.ca/cs/courseschedule?pname=subjarea&tname=subj-course&dept=',Dept,'&course=',CourseNum],
          URL).
     
 
-
 download_page(URL, HTML) :-
     http_open(URL, In, []),
     load_html(In, HTML, []),
     close(In).
+
 
 
 
@@ -72,8 +73,10 @@ save_html_to_file(Data) :-
     close(Out).
 
 run_web_scraper :-
+
     %  I assume you will want to pass in the course name and number for user input
     url('CPSC', '100', URL),
+
     download_page(URL, HTML),
     atom_concat('CPSC','100', CourseName),
     %  we want to extract all data into tuples
