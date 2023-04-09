@@ -3,35 +3,69 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 
+% testing on 312 url
 url("https://www.cs.ubc.ca/~poole/cs312/2023/schedule.html").
-data_to_extract([title, description, keywords]).
 
 download_page(URL, HTML) :-
     http_open(URL, In, []),
     load_html(In, HTML, []),
     close(In).
 
+parse_dates(Text, Month, Day) :-
+    re_matchsub("^.*?(Jan|Feb|Mar|April|May|June|July|Aug|Sept|Oct|Nov|Dec)[a-z]*[^0-9]+([0-9]+).*?\\.(.?)", Text, Matches),
+    print(Matches),
+    dict_pairs(Matches, _, Pairs),
+    memberchk(1-Month, Pairs),
+    memberchk(2-Day, Pairs),
+    %print(Month),
+    %print(Day), 
+    month_number(Month, _),
+    atom_number(Day, DayNum).
+    day_number(DayNum). 
+
+% could put an if for feb if want
+day_number(D) :-
+    between(0, 31, D).
+
+month_number("Jan", 1).
+month_number("January", 1).
+month_number("Feb", 2).
+month_number("February", 2).
+month_number("Mar", 3).
+month_number("March", 3).
+month_number("Apr", 4).
+month_number("April", 4).
+
+% these dates fall after term ends
+month_number("May", 5).
+month_number("June", 6).
+month_number("July", 7).
+month_number("Aug", 8).
+month_number("Sept", 9).
+month_number("Oct", 10).
+month_number("Nov", 11).
+month_number("Dec", 12).
+
 extract_data(HTML, Data) :-
-    findall(Value, (
-        member(TagName, Data),
-        xpath(HTML, //TagName, TextNode),
-        atom_string(Value, TextNode)
+    findall(Date, (
+        xpath(HTML, //(ul), UL),
+        xpath(UL, //li(text), TextNode),
+        atom_string(Value, TextNode),
+        %print(Value),
+        parse_dates(Value, MonthNumber, Day),
+        %print(MonthNumber),
+        format(atom(Date), '~w ~w', [MonthNumber, Day])
     ), DataValues),
-    maplist(atom_string, Data, DataStrings),
-    maplist(atom_string, DataValues, DataValueStrings),
-    Data =.. [DataStrings, DataValueStrings].
-
-store_data(_) :-
-    open('data.csv', append, File),
-    maplist(write_csv_line(File), Data),
-    close(File).
-
-write_csv_line(File, Data) :-
-    csv_write_stream(File, [Data], []).
+    maplist(atom_string, DataValues, Data).
 
 run_web_scraper :-
     url(URL),
     download_page(URL, HTML),
-    data_to_extract(Data),
-    extract_data(HTML, DataValues),
-    store_data(DataValues).
+    extract_data(HTML, Data),
+    writeln(Data),
+
+    open('output.txt', write, Out),
+    foreach(member(Element, Data), writeln(Out, Element)),
+    close(Out).
+
+% to load: run_web_scraper.
