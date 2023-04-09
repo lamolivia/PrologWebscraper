@@ -5,7 +5,6 @@
 url('https://courses-test.students.ubc.ca/cs/courseschedule?pname=subjarea&tname=subj-course&dept=CPSC&course=100').
 
 
-
 download_page(URL, HTML) :-
     http_open(URL, In, []),
     load_html(In, HTML, []),
