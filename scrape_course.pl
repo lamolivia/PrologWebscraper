@@ -26,7 +26,7 @@ run_web_scraper :-
     writeln("Please input the courses you wish to enrol in, separated by commas (ex. ""CPSC 100, FNH 150""):"),
     read_line_to_string(user_input, Input),
     split_string(Input, ",", "", DeptCourseNums),
-    maplist(web_scraper_helper, DeptCourseNums)
+    maplist(web_scraper_helper, DeptCourseNums).
 
 web_scraper_helper(CourseNumber) :-
     split_string(DeptCourseNum, " ", "", [DeptStr, CourseNumStr]),
