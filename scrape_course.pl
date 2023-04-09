@@ -13,7 +13,7 @@ download_page(URL, HTML) :-
 
 
 extract_data(Html, Data) :-
-    xpath(Html, //table(contains(@class,'section-summary')), Table),
+    xpath(Html, //tr(contains(@class,'section')), Table),
     xpath(Table, //td(text), Data).
 
 
