@@ -2,8 +2,8 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 
-url('https://courses-test.students.ubc.ca/cs/courseschedule?pname=subjarea&tname=subj-course&dept=CPSC&course=100').
-
+url(CourseNumber, URL) :-
+    format(atom(URL), 'https://courses-test.students.ubc.ca/cs/courseschedule?pname=subjarea&tname=subj-course&dept=CPSC&course=~w', [CourseNumber]).
 
 download_page(URL, HTML) :-
     http_open(URL, In, []),
@@ -21,8 +21,8 @@ save_html_to_file(Data) :-
     write(Out, Data),
     close(Out).
 
-run_web_scraper :-
-    url(URL),
+run_web_scraper(CourseNumber) :-
+    url(CourseNumber, URL),
     download_page(URL, HTML),
     extract_data(HTML, Data),
     %  we want to extract all data into tuples
