@@ -55,7 +55,6 @@ test(map_find_components) :-
     map_find_components(L1, Data, [], R1).
 
 test(remove_overlaps_list) :-
-    write("in overlaps list"),
 
     T1 = clock_time(10,00),
     T2 = clock_time(10,50),
@@ -88,7 +87,6 @@ test(remove_overlaps_list) :-
     R1 = [CR1, CR2, C3], 
     
     remove_overlaps_list(DL, L1, [], R1),
-    write("done overlaps list").
 
 test(make_schedule) :-
     T1 = clock_time(10,00),
@@ -118,22 +116,13 @@ test(make_schedule) :-
 
     R1 = [RG1, RG2, RG3],
 
-    write("starting make schedule"),
-
     make_schedule([C1, C2, C3], [], R1),
-
-    write("made first schedule"),
-
-    write(R1),
 
     C4 = component(CS210, Lecture, [[DM1, DW1, DF1]]),
     
     RG4 = registration(CS210, Lecture, [DM1, DW1, DF1]),
 
-    write("starting make schedule"),
-
     make_schedule([C4], [], R2),
-    write("make second schedule").
 
 
 :- end_tests(scheduling).
