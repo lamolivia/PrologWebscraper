@@ -74,16 +74,20 @@ save_html_to_file(Data) :-
 
 run_web_scraper :-
 
-    %  I assume you will want to pass in the course name and number for user input
-    url('CPSC', '100', URL),
+    % user input
+    writeln("Please input the courses you wish to enrol in, separated by commas (ex. ""CPSC 100, FNH 150""):"),
+    read_line_to_string(user_input, Input),
+    split_string(Input, ",", "", DeptCourseNums),
+    maplist(web_scraper_helper, DeptCourseNums).
 
-    download_page(URL, HTML),
-    atom_concat('CPSC','100', CourseName),
-    %  we want to extract all data into tuples
-    extract_data(HTML, CourseName, Data),
-    % writeln(Data),
-
-    save_html_to_file(Data).
+web_scraper_helper(CourseNumber) :-
+    split_string(DeptCourseNum, " ", "", [DeptStr, CourseNumStr]),
+    atom_chars(CourseNumber, CourseNumStr),
+    atom_chars(Dept, DeptStr),
+    url(Dept, CourseNumber, URL),
+    writeln(Data),
+    save_html_to_file(Data),
+    sleep(5).
 
 
 
