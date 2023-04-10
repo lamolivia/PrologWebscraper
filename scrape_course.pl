@@ -54,17 +54,7 @@ extract_section(Table, Type, Start, End, Day, SectionName, Term) :-
     % writeln(End).
 
 
-    
-%  unpack data
 
-% [CPSC 100 101])]), -> regex using course name and number
-% element(td,[],[Lecture]), -> regex using lecture, laboratory, tutorial
-% element(td,[],[1]), -> regex using 1 or 2
-% element(td,[],[In-Person                     ]), -> regex using In-Person, Online, Hybrid
-% element(td,[],[]),
-% element(td,[],[ Mon Wed Fri]),
-% element(td,[],[15:00]),
-% element(td,[],[16:00]),
 
 
 save_html_to_file(Data) :-
@@ -85,12 +75,4 @@ run_web_scraper :-
 
     save_html_to_file(Data).
 
-
-
-%  figure out this shit
-
-
-% component("CS312", "Lecture", [[duration(clock_time(10,00), clock_time(11,20, T)), duration(clock_time(10,00), clock_time(11,20, Th))],
-%                               [duration(clock_time(12,00), clock_time(1,20, T)), duration(clock_time(12,00), clock_time(1,20, Th))]])
-% component(Name, Type, [[duration(Start, End, Day)]]).
 
