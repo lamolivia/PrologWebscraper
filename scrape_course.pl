@@ -41,7 +41,7 @@ extract_section(Table, Type, Start, End, Day, SectionName, Term) :-
     xpath(Section, //td(3,text(string)), Type),
     xpath(Section, //td(4,number), Term),
     xpath(Section, //td(7,text(string)), Days), % need to parse this
-    re_matchsub("Mon|Tue|Wed|Thu|Fri", Days, ReDay),
+    re_matchsub("Mon|Tue|Wed|Thu|Fri|Sat|Sun", Days, ReDay),
     dict_pairs(ReDay, _, Pairs),
     memberchk(_-Day, Pairs),
     xpath(Section, //td(8,text(string)), Start),
