@@ -61,7 +61,9 @@ run_web_scraper :-
     maplist(web_scraper_helper, ClassList, ListOfCourseDataLists),
     foldl(append, ListOfCourseDataLists, [], CourseData),
     save_to_file(CourseData),
-    start_scheduling(ClassList, CourseData, Schedule).
+    %  this line causes stack overflows
+    start_scheduling(ClassList, CourseData, Schedule),
+    writeln(Schedule).
 
 web_scraper_helper(DeptCourseNum, CourseData) :-
     split_string(DeptCourseNum, " ", "", [Dept, CourseNum]),
