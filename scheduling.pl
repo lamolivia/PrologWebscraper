@@ -39,47 +39,43 @@ find_components(Name, [_|R], C) :- find_components(Name, R, C).
 
 % MAKE SCHEDULE
 % creates a schedule for the user using the list of comopnents provided. with each component, it will check if a valid schedule can be made using the
-% first set of durations. if so, that schedule will be used. if not, it will search through the remaining durations.
+% first set of sections. if so, that schedule will be used. if not, it will search through the remaining sections.
 
 % if the list of components is empty, return the existing schedule.
 make_schedule([], S, S).
 
-% if a valid schedule can be made with the current durations, make the registration,
+% if a valid schedule can be made with the current sections, make the registration,
 % and append it to the schedule returned by recursion.
-make_schedule([component(Name, Type, [D|_])|R], S, [RG|S1]) :-
-    writeln("creating registration"),
-    RG = registration(Name, Type, D),
-    writeln(RG),
-    make_schedule(R, S, S1).
-    % remove_overlaps_list(D, R, [], R1).
+make_schedule([component(Name, Type, [Sec|_])|R], S, [RG|S1]) :-
+    RG = registration(Name, Type, Sec),
+    make_schedule(R, S, S1),
+    remove_overlaps_list(Sec, R, [], R1).
 
-% if no valid schedule can be made, try the next durations
-make_schedule([component(Name, Type, [_|D1])|R], S, S1) :-
-    writeln("checking next durations"),
-    make_schedule([component(Name, Type, D1)|R], S, S1).
+% if no valid schedule can be made, try the next sections
+make_schedule([component(Name, Type, [_|Rest])|R], S, S1) :-
+    make_schedule([component(Name, Type, Rest)|R], S, S1).
 
-% if a component is out of durations to try, do not register it.
+% if a component is out of sections to try, do not register it.
 make_schedule([component(Name, Type, [])|R], S, S1) :-
-    writeln('skipping component'),
     make_schedule(R, S, S1).
 
-% clause if no other rules apply
-% make_schedule(_, S, S).
+% clause if no other rules apply to just return existing schedule
+make_schedule(_, S, S).
     
 
 % REMOVE OVERLAPS LIST
-% given a list of components, remove every duration for each component that overlaps with the given list of durations, DL.
+% given a list of components, remove every section for each component that overlaps with the given list of sections, SL.
 remove_overlaps_list(_, [], L, L).
 
-% recreate the component with invalid durations deleted, and append to the list from the recursive call
-remove_overlaps_list(DL, [component(Name, Type, D)|R], L, [component(Name, Type, D1)|L1]) :-
-    write(Name),
-    remove_overlaps_list(DL, R, L, L1),
-    remove_overlaps_durs(DL, D, D1).
+% recreate the component with invalid sections deleted, and append to the list from the recursive call
+remove_overlaps_list(SL, [component(Name, Type, Sec)|R], L, [component(Name, Type, Sec1)|L1]) :-
+    remove_overlaps_list(SL, R, L, L1),
+    remove_overlaps_secs(SL, Sec, Sec1).
+
 
 % START SCHEDULING
 % the main function to make a schedule.
 % the function takes a list of class names, and creates a schedule for the student including all of those classes.
 start_scheduling(Classes, Data, S) :-
-    make_schedule(C, S, []),
+    make_schedule(C, [], S),
     map_find_components(Classes, Data, [], C).
