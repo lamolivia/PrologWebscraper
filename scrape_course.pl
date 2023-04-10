@@ -37,6 +37,6 @@ web_scraper_helper(CourseNumber) :-
     extract_data(HTML, Data),
     %  we want to extract all data into tuples
     writeln(Data),
-
-    save_html_to_file(Data).
+    save_html_to_file(Data),
+    sleep(5).
 
