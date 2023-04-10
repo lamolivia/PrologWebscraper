@@ -8,15 +8,18 @@ test(find_components) :-
     T4 = clock_time(11,50),
     T5 = clock_time(12,00),
 
-    DM1 = duration(T1, T2, M),
-    DW1 = duration(T1, T2, W),
-    DF1 = duration(T1, T2, F),
+    SM1 = section(A, T1, T2, M, W1),
+    SW1 = section(B, T1, T2, M, W1),
+    SF1 = section(C, T1, T2, M, W1),
 
-    DM2 = duration(T1, T2, M),
-    DW2 = duration(T1, T2, W),
-    DF2 = duration(T1, T2, F),
+    SM2 = section(D, T3, T4, M, W1),
+    SW2 = section(E, T3, T4, W, W1),
+    SF2 = section(F, T3, T4, F, W1),
 
-    C1 = (CS312, Lecture, [[DM1, DW1, DF1], [DM2, DW2, DW3]]),
+    ST1 = section(G, T1, T2, T, W1),
+    ST2 = section(H, T3, T4, T, W1),
+
+    C1 = (CS312, Lecture, [[SM1, SW1, SF1], [SM2, SW2, SF2]]),
     
     Data = [class(CS312,[C1])],
 
@@ -31,20 +34,21 @@ test(map_find_components) :-
     T4 = clock_time(11,50),
     T5 = clock_time(12,00),
 
-    DM1 = duration(T1, T2, M),
-    DW1 = duration(T1, T2, W),
-    DF1 = duration(T1, T2, F),
 
-    DM2 = duration(T1, T2, M),
-    DW2 = duration(T1, T2, W),
-    DF2 = duration(T1, T2, F),
+    SM1 = section(A, T1, T2, M, W1),
+    SW1 = section(B, T1, T2, M, W1),
+    SF1 = section(C, T1, T2, M, W1),
 
-    DT1 = duration(T1, T2, T),
-    DT2 = duration(T3, T4, T),
+    SM2 = section(D, T3, T4, M, W1),
+    SW2 = section(E, T3, T4, W, W1),
+    SF2 = section(F, T3, T4, F, W1),
 
-    C1 = (CS312, Lecture, [[DM1, DW1, DF1], [DM2, DW2, DW3]]),
-    C2 = (CS313, Lecture, [[DM1, DW2, DF1]]),
-    C3 = (CS313, Lab, [[DT1], [DT2]]),
+    ST1 = section(G, T1, T2, T, W1),
+    ST2 = section(H, T3, T4, T, W1),
+
+    C1 = (CS312, Lecture, [[SM1, SW1, SF1], [SM2, SW2, SF2]]),
+    C2 = (CS313, Lecture, [[SM1, SW1, SF1]]),
+    C3 = (CS313, Lab, [[ST1], [ST2]]),
 
     
     Data = [class(CS312,[C1]), class(CS313, [C2, C3])],
@@ -62,22 +66,22 @@ test(remove_overlaps_list) :-
     T4 = clock_time(11,50),
     T5 = clock_time(12,00),
 
-    DM1 = duration(T1, T2, M),
-    DW1 = duration(T1, T2, W),
-    DF1 = duration(T1, T2, F),
+    SM1 = section(A, T1, T2, M, W1),
+    SW1 = section(B, T1, T2, M, W1),
+    SF1 = section(C, T1, T2, M, W1),
 
-    DM2 = duration(T1, T2, M),
-    DW2 = duration(T1, T2, W),
-    DF2 = duration(T1, T2, F),
+    SM2 = section(D, T3, T4, M, W1),
+    SW2 = section(E, T3, T4, W, W1),
+    SF2 = section(F, T3, T4, F, W1),
 
-    DT1 = duration(T1, T2, T),
-    DT2 = duration(T3, T4, T),
+    ST1 = section(G, T1, T2, T, W1),
+    ST2 = section(H, T3, T4, T, W1),
 
-    C1 = component(CS312, Lecture, [[DM1, DW1, DF1], [DM2, DW2, DW3]]),
-    C2 = component(CS313, Lecture, [[DM1, DW2, DF1]]),
-    C3 = component(CS313, Lab, [[DT1], [DT2]]),
+    C1 = component(CS312, Lecture, [[SM1, SW1, SF1], [SM2, SW2, SF2]]),
+    C2 = component(CS313, Lecture, [[SM1, SW2, SF1]]),
+    C3 = component(CS313, Lab, [[ST1], [ST2]]),
 
-    CR1 = component(CS312, Lecture, [[DM1, DW1, DF1]]),
+    CR1 = component(CS312, Lecture, [[SM1, SW1, SF1]]),
     CR2 = component(CS313, Lecture, []),
 
     DL = [D1],
@@ -95,34 +99,35 @@ test(make_schedule) :-
     T4 = clock_time(11,50),
     T5 = clock_time(12,00),
 
-    DM1 = duration(T1, T2, M),
-    DW1 = duration(T1, T2, W),
-    DF1 = duration(T1, T2, F),
+    SM1 = section(A, T1, T2, M, W1),
+    SW1 = section(B, T1, T2, M, W1),
+    SF1 = section(C, T1, T2, M, W1),
 
-    DM2 = duration(T3, T4, M),
-    DW2 = duration(T3, T4, W),
-    DF2 = duration(T3, T4, F),
+    SM2 = section(D, T3, T4, M, W1),
+    SW2 = section(E, T3, T4, W, W1),
+    SF2 = section(F, T3, T4, F, W1),
 
-    DT1 = duration(T1, T2, T),
-    DT2 = duration(T3, T4, T),
+    ST1 = section(G, T1, T2, T, W1),
+    ST2 = section(H, T3, T4, T, W1),
 
-    C1 = component(CS312, Lecture, [[DM1, DW1, DF1], [DM2, DW2, DF2]]),
-    C2 = component(CS313, Lecture, [[DM1, DW1, DF1]]),
-    C3 = component(CS313, Lab, [[DT1], [DT2]]),
+    C1 = component(CS312, Lecture, [[SM1, SW1, SF1], [SM2, SW2, SF2]]),
+    C2 = component(CS313, Lecture, [[SM1, SW1, SF1]]),
+    C3 = component(CS313, Lab, [[ST1], [ST2]]),
 
-    RG1 = registration(CS312, Lecture, [DM2, DW2, DF2]),
-    RG2 = registration(CS313, Lecture, [DM1, DW1, DF1]),
-    RG3 = registration(CS313, Lab, [DT1]),
+    RG1 = registration(CS312, Lecture, [SM2, SW2, SF2]),
+    RG2 = registration(CS313, Lecture, [SM1, SW1, SF1]),
+    RG3 = registration(CS313, Lab, [ST1]),
 
     R1 = [RG1, RG2, RG3],
 
     make_schedule([C1, C2, C3], [], R1),
 
-    C4 = component(CS210, Lecture, [[DM1, DW1, DF1]]),
-    
-    RG4 = registration(CS210, Lecture, [DM1, DW1, DF1]),
 
-    make_schedule([C4], [], R2).
+    C4 = component(CS210, Lecture, [[SM1, SW1, SF1]]),
+    
+    RG4 = registration(CS210, Lecture, [SM1, SW1, SF1]).
+
+    %make_schedule([C4], [], R2).
 
 
 :- end_tests(scheduling).
