@@ -35,6 +35,7 @@ download_page(URL, HTML) :-
 
 
 
+
 remove_type_from_section(section(SectionName, Start, End, Day, Term, _), section(SectionName, Start, End, Day, Term)).
 
 make_component(Sections, CourseName, Type, component(CourseName, Type, UnTypeSections)) :-
@@ -51,6 +52,8 @@ find_types(Sections, Types) :-
     ), DupeTypes),
     list_to_set(DupeTypes,Types).
 
+
+
 extract_data(Html, CourseName, Components) :-
     xpath(Html, //table(contains(@class,'section-summary')), Table),
     % [component(CPSC 001,Lecture,[[section(clock_time(15,00),clock_time(16,00),Mon,CPSC 100 101,1)]])],
@@ -58,7 +61,8 @@ extract_data(Html, CourseName, Components) :-
         extract_section(Table, Type, Start,End,Day,SectionName, Term)
     ), UnsortedDupeSections),
     list_to_set(UnsortedDupeSections, UnsortedSections),
-    find_types(UnsortedSections, Types),
+    find_types(UnsortedSections, TypesWWaitlist),
+    exclude(=("Waiting List"), TypesWWaitlist, Types),
     maplist(make_component(UnsortedSections, CourseName), Types, Components).
     
 
@@ -103,9 +107,9 @@ run_web_scraper :-
     %  debugging purposes
     save_scrape_to_file(CourseData),
     % Example = [component(CPSC 001,Lecture,[[section(clock_time(15,00),clock_time(16,00),Mon,CPSC 100 101,1)]])],
-    start_scheduling(ClassList, CourseData, Schedule),
+    % start_scheduling(ClassList, CourseData, Schedule),
     %  debugging purposes
-    save_sched_to_file(Schedule),
+    % save_sched_to_file(Schedule),
     % writeln("finished"),
     halt.
 
