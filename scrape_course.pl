@@ -69,5 +69,6 @@ web_scraper_helper(DeptCourseNum, CourseData) :-
     split_string(DeptCourseNum, " ", "", [Dept, CourseNum]),
     url(Dept, CourseNum, URL),
     download_page(URL, HTML),
-    extract_data(HTML, DeptCourseNum, CourseData).
+    extract_data(HTML, DeptCourseNum, CourseData),
+    sleep(5).
 
