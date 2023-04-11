@@ -33,9 +33,6 @@ download_page(URL, HTML) :-
     load_html(In, HTML, []),
     close(In).
 
-
-
-
 remove_type_from_section(section(SectionName, Start, End, Day, Term, _), section(SectionName, Start, End, Day, Term)).
 
 make_component(Sections, CourseName, Type, component(CourseName, Type, UnTypeSections)) :-
@@ -52,13 +49,12 @@ find_types(Sections, Types) :-
     ), DupeTypes),
     list_to_set(DupeTypes,Types).
 
-
-
 extract_data(Html, CourseName, Components) :-
     xpath(Html, //table(contains(@class,'section-summary')), Table),
     % [component(CPSC 001,Lecture,[[section(clock_time(15,00),clock_time(16,00),Mon,CPSC 100 101,1)]])],
     findall(section(SectionName, Start, End, Day,  Term, Type), (
-        extract_section(Table, Type, Start,End,Day,SectionName, Term)
+        extract_section(Table, Type, Start,End,Day,SectionName, Term),
+        Term =:= 1 % Only include sections with Term 1
     ), UnsortedDupeSections),
     list_to_set(UnsortedDupeSections, UnsortedSections),
     find_types(UnsortedSections, TypesWWaitlist),
