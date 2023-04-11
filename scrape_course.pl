@@ -2,6 +2,12 @@
 :- use_module(library(http/http_open)).
 :- use_module(library(xpath)).
 :- include(scheduling).
+:- use_module(library(dcg/basics)).
+
+string_trim(String, Trimmed) :-
+    string_codes(String, Codes),
+    phrase((blanks, string(CodesTrimmed), blanks), Codes),
+    string_codes(Trimmed, CodesTrimmed).
 
 
 remove_whitespace_char(Char) :-
@@ -58,8 +64,8 @@ save_to_file(Data) :-
 run_web_scraper :-
     writeln("Please input the courses you wish to enrol in, separated by commas (ex. ""CPSC 100, FNH 150""):"),
     read_line_to_string(user_input, Input),
-    %  TODO: add trim spaces, but not a big deal
-    split_string(Input, ",", "", ClassList),
+    split_string(Input, ",", " ", ClassList0),
+    maplist(string_trim, ClassList0, ClassList),
     maplist(web_scraper_helper, ClassList, ListOfCourseDataLists),
     foldl(append, ListOfCourseDataLists, [], CourseData),
     save_to_file(CourseData),
