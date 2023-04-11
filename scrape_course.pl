@@ -107,9 +107,9 @@ run_web_scraper :-
     %  debugging purposes
     save_scrape_to_file(CourseData),
     % Example = [component(CPSC 001,Lecture,[[section(clock_time(15,00),clock_time(16,00),Mon,CPSC 100 101,1)]])],
-    % start_scheduling(ClassList, CourseData, Schedule),
+    start_scheduling(ClassList, CourseData, Schedule),
     %  debugging purposes
-    % save_sched_to_file(Schedule),
+    save_sched_to_file(Schedule),
     % writeln("finished"),
     halt.
 
