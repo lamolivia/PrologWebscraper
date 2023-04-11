@@ -56,7 +56,8 @@ extract_data(Html, CourseName, Components) :-
     % [component(CPSC 001,Lecture,[[section(clock_time(15,00),clock_time(16,00),Mon,CPSC 100 101,1)]])],
     findall(section(SectionName, Start, End, Day,  Term, Type), (
         extract_section(Table, Type, Start,End,Day,SectionName, Term)
-    ), UnsortedSections),
+    ), UnsortedDupeSections),
+    list_to_set(UnsortedDupeSections, UnsortedSections),
     find_types(UnsortedSections, Types),
     maplist(make_component(UnsortedSections, CourseName), Types, Components).
     
