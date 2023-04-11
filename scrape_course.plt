@@ -21,18 +21,18 @@ test(extract_data) :-
     load_html_file('test_data.html', HTML, []),
     extract_data(HTML, "CPSC 210", Sections),
     assertion(Sections == [
-    component("CPSC 210", "Lecture", 1, [[duration("12:30 PM", "1:50 PM", "Wed", "L1A")]])
+    component(CPSC 210,Lecture,[section(CPSC 210 101,clock_time(12,30),clock_time(13,30),Wed,1)])
     ]).
 
 test(extract_section) :-
     load_html_file('test_data.html', HTML, []),
     xpath(HTML, //table(contains(@class,'section-summary')), Table),
-    extract_section(Table, "LEC", Start, End, Day, SectionName, Term),
+    extract_section(Table, Lecture, Start, End, Day, SectionName, Term),
     assertion((
-        Start == "12:30 PM",
-        End == "1:50 PM",
-        Day == "Wed",
-        SectionName == "L1A",
+        Start == clock_time(12,30),
+        End == clock_time(13,30),
+        Day == Wed,
+        SectionName == section(CPSC 210),
         Term == 1
     )).
 
