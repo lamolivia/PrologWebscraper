@@ -1,4 +1,4 @@
-:- module(scheduling_wg).
+:- module(scheduling).
 :- include(scheduleutils).
 
 
