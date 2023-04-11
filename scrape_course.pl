@@ -4,30 +4,31 @@
 :- include(scheduling).
 :- use_module(library(dcg/basics)).
 
+% trims whitespace from a string
 string_trim(String, Trimmed) :-
     string_codes(String, Codes),
     phrase((blanks, string(CodesTrimmed), blanks), Codes),
     string_codes(Trimmed, CodesTrimmed).
 
-
+% produce true if char is whitespace
 remove_whitespace_char(Char) :-
     member(Char, [9, 10, 11, 12, 13, 32]).
 
-
+% Removes whitepace from a string and returns as atom result
 remove_whitespace(String, AtomResult) :-
     string_to_atom(String, AtomizedString),
     atom_codes(AtomizedString, Codes),
     exclude(remove_whitespace_char, Codes, Result),
     atom_codes(AtomResult, Result).
 
-
+% generates url for a given course
 url(DeptSpaces, CourseNumberSpaces, URL) :-
     remove_whitespace(DeptSpaces, Dept),
     remove_whitespace(CourseNumberSpaces, CourseNumber),
     %  error handling for whitespace added to url
     format(atom(URL), 'https://courses-test.students.ubc.ca/cs/courseschedule?pname=subjarea&tname=subj-course&dept=~w&course=~w', [Dept, CourseNumber]).
     
-
+% downloads URL as HTML DOM
 download_page(URL, HTML) :-
     http_open(URL, In, []),
     load_html(In, HTML, []),
@@ -41,9 +42,11 @@ make_component(Sections, CourseName, Type, component(CourseName, Type, UnTypeSec
     include(match_type(Type), Sections, TypeSections),
     maplist(remove_type_from_section, TypeSections, UnTypeSections).
 
+% true if intended type matches
 match_type(IntendedType, section(_, _, _, _, _, Type)) :-
     IntendedType = Type.
 
+% finds all types of components in a course. For example, for CPSC 121, it would return a Lecture, Lab and Tutorial.
 find_types(Sections, Types) :-
     findall(Type, (
         member(section(_, _, _, _, _, Type), Sections),
