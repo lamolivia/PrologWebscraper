@@ -24,9 +24,7 @@ make_schedule([component(Name, Type, [])|R], S, S1) :-
 
 % clause if no other rules apply to just return existing schedule
 make_schedule(_, S, S).
-    
-check_overlap(_, []) :- true.
-check_overlap(section(_, _, [H|T], ))
+  
 
 % REMOVE OVERLAPS LIST
 % given a list of components, remove every section for each component that overlaps with the given list of sections, SL. This is not used because we 
