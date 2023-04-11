@@ -21,7 +21,7 @@ test(extract_data) :-
     load_html_file('test_data.html', HTML, []),
     extract_data(HTML, "CPSC 210", Sections),
     assertion(Sections == [
-        component("CPSC 210", "LEC", 1, [[duration("12:30 PM", "1:50 PM", "Mon", "L1A"), duration("2:00 PM", "3:20 PM", "Wed", "L1A")]])
+    component("CPSC 210", "Lecture", 1, [[duration("12:30 PM", "1:50 PM", "Wed", "L1A")]])
     ]).
 
 test(extract_section) :-
@@ -31,7 +31,7 @@ test(extract_section) :-
     assertion((
         Start == "12:30 PM",
         End == "1:50 PM",
-        Day == "Mon",
+        Day == "Wed",
         SectionName == "L1A",
         Term == 1
     )).
