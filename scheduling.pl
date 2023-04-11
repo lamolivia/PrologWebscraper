@@ -1,28 +1,6 @@
 :- module(scheduling).
 :- include(scheduleutils).
 
-% MAP FIND COMPONENTS
-% converts the names of the courses into their components by searching components in the passed data.
-map_find_components(_, [], L, L).
-map_find_components([], _, L, L).
-map_find_components([H|T], Data, L, L2) :-
-    append(H1, L1, L2),
-    map_find_components(T, Data, L, L1),
-    find_components(H, Data, [], H1).
-
-% FIND COMPONENTS 
-% returns all components in the list associated with a class of a given name
-find_components(_, [], [], []).
-find_components(_, [], L, L).
-find_components(Name, [component(N1, _, _)|R], L, [component(N1, Type, Secs)|L1]) :-
-    Name =@= N1,
-    find_components(Name, R, L, L1).
-find_components(Name, [component(N1, _, _)|R], L, L1) :- 
-    find_components(Name, R, L, L1).
-find_components(Name, [_|R], L, L1) :- 
-    find_components(Name, R, L, L1).
-
-
 % MAKE SCHEDULE
 % creates a schedule for the user using the list of comopnents provided. with each component, it will check if a valid schedule can be made using the
 % first set of sections. if so, that schedule will be used. if not, it will search through the remaining sections.
@@ -34,8 +12,7 @@ make_schedule([], S, S).
 % and append it to the schedule returned by recursion.
 make_schedule([component(Name, Type, [Sec|_])|R], S, [RG|S1]) :-
     RG = registration(Name, Type, Sec),
-    make_schedule(R, S, S1),
-    remove_overlaps_list(Sec, R, [], R1).
+    make_schedule(R, S, S1).
 
 % if no valid schedule can be made, try the next sections
 make_schedule([component(Name, Type, [_|Rest])|R], S, S1) :-
@@ -48,9 +25,12 @@ make_schedule([component(Name, Type, [])|R], S, S1) :-
 % clause if no other rules apply to just return existing schedule
 make_schedule(_, S, S).
     
+check_overlap(_, []) :- true.
+check_overlap(section(_, _, [H|T], ))
 
 % REMOVE OVERLAPS LIST
-% given a list of components, remove every section for each component that overlaps with the given list of sections, SL.
+% given a list of components, remove every section for each component that overlaps with the given list of sections, SL. This is not used because we 
+% could not get it to work :P
 remove_overlaps_list(_, [], L, L).
 
 % recreate the component with invalid sections deleted, and append to the list from the recursive call

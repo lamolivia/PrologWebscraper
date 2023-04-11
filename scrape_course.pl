@@ -66,12 +66,13 @@ extract_data(Html, CourseName, Components) :-
     maplist(make_component(UnsortedSections, CourseName), Types, Components).
     
 
-
+% convert data of format HH:MM to clock_time(HH, MM) as needed for later time comparisons
 to_clock_time(Text, clock_time(Hrs, Mins)) :-
     split_string(Text, ":", "", [StrHrs,StrMins]),
     number_string(Hrs, StrHrs),
     number_string(Mins, StrMins).
 
+% find an individual section of a lecture, lab, etc
 extract_section(Table, Type, Start, End, Day, SectionName, Term) :-
     xpath(Table, //tr(contains(@class,'section')), Section),
     xpath(Section, //td(2,text(string)), SectionName),
@@ -87,11 +88,13 @@ extract_section(Table, Type, Start, End, Day, SectionName, Term) :-
     to_clock_time(EndString, End).
 
 
+% save scraped data to a file
 save_scrape_to_file(Data) :-
     open('output.txt', write, Out),
     write(Out, Data),
     close(Out).
 
+% save schedule data to a file
 save_sched_to_file(Data) :-
     open('schedule.txt', write, Out),
     write(Out, Data),
@@ -107,10 +110,11 @@ run_web_scraper :-
     %  debugging purposes
     save_scrape_to_file(CourseData),
     % Example = [component(CPSC 001,Lecture,[[section(clock_time(15,00),clock_time(16,00),Mon,CPSC 100 101,1)]])],
+    writeln(ClassList),
     start_scheduling(ClassList, CourseData, Schedule),
     %  debugging purposes
     save_sched_to_file(Schedule),
-    % writeln("finished"),
+    writeln("finished"),
     halt.
 
 web_scraper_helper(DeptCourseNum, CourseData) :-
