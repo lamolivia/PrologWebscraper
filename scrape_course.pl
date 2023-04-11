@@ -33,8 +33,10 @@ download_page(URL, HTML) :-
     load_html(In, HTML, []),
     close(In).
 
+% remove type data from section for easier use in later parts of code
 remove_type_from_section(section(SectionName, Start, End, Day, Term, _), section(SectionName, Start, End, Day, Term)).
 
+% create a component that contains all sections of a certain type. I.e. a lab component with all lab sections
 make_component(Sections, CourseName, Type, component(CourseName, Type, UnTypeSections)) :-
     include(match_type(Type), Sections, TypeSections),
     maplist(remove_type_from_section, TypeSections, UnTypeSections).
@@ -49,16 +51,24 @@ find_types(Sections, Types) :-
     ), DupeTypes),
     list_to_set(DupeTypes,Types).
 
+% for a given coursename, finds all components. For example, for CPSC 121, it would return a Lecture, Lab and Tutorial.
 extract_data(Html, CourseName, Components) :-
     xpath(Html, //table(contains(@class,'section-summary')), Table),
-    % [component(CPSC 001,Lecture,[[section(clock_time(15,00),clock_time(16,00),Mon,CPSC 100 101,1)]])],
+
+    % find every section related to the course(all lab sections, lecture sections, etc)
     findall(section(SectionName, Start, End, Day,  Term, Type), (
         extract_section(Table, Type, Start,End,Day,SectionName, Term),
         Term =:= 1 % Only include sections with Term 1
     ), UnsortedDupeSections),
+
+    % find a list of all component types in the course(Lab, lecture, etc.)
     list_to_set(UnsortedDupeSections, UnsortedSections),
     find_types(UnsortedSections, TypesWWaitlist),
+
+    % remove waiting list from types to ensure the algorithm doesnt sign us up for waitlists
     exclude(=("Waiting List"), TypesWWaitlist, Types),
+
+    % aggregate sections into components. all lab sections should be under a Lab component, etc.
     maplist(make_component(UnsortedSections, CourseName), Types, Components).
     
 
@@ -68,19 +78,27 @@ to_clock_time(Text, clock_time(Hrs, Mins)) :-
     number_string(Hrs, StrHrs),
     number_string(Mins, StrMins).
 
-% find an individual section of a lecture, lab, etc
+% extract an individual section of a component. i.e., if the component is a lab, this would extra L2A, L2B, etc.
+% finds any 
 extract_section(Table, Type, Start, End, Day, SectionName, Term) :-
+    % extract data relevant to the section with xpath
     xpath(Table, //tr(contains(@class,'section')), Section),
     xpath(Section, //td(2,text(string)), SectionName),
     xpath(Section, //td(3,text(string)), Type),
     xpath(Section, //td(4,number), Term),
-    xpath(Section, //td(7,text(string)), Days), % need to parse this
+    xpath(Section, //td(7,text(string)), Days), 
+
+    % map days of week to a shorter version
     re_matchsub("Mon|Tue|Wed|Thu|Fri|Sat|Sun", Days, ReDay),
     dict_pairs(ReDay, _, Pairs),
     memberchk(_-Day, Pairs),
+    
     xpath(Section, //td(8,text(string)), StartString),
+    % convert the time to  a clock_time, needed for later comparisons
     to_clock_time(StartString, Start),
+    
     xpath(Section, //td(9,text(string)), EndString),
+    % ditto
     to_clock_time(EndString, End).
 
 
@@ -96,27 +114,35 @@ save_sched_to_file(Data) :-
     write(Out, Data),
     close(Out).
 
+% main function to run web scraping
 run_web_scraper :-
+    % prompt user for courses to register
     writeln("Please input the courses you wish to enrol in, separated by commas (ex. ""CPSC 100, FNH 150""):"),
     read_line_to_string(user_input, Input),
     split_string(Input, ",", " ", ClassList0),
+    writeln("List received. Scraping data..."),
     maplist(string_trim, ClassList0, ClassList),
+    
+    % call the helper on every class name we receieved
     maplist(web_scraper_helper, ClassList, ListOfCourseDataLists),
+    % consolidate into one single component list
     foldl(append, ListOfCourseDataLists, [], CourseData),
-    %  debugging purposes
     save_scrape_to_file(CourseData),
-    % Example = [component(CPSC 001,Lecture,[[section(clock_time(15,00),clock_time(16,00),Mon,CPSC 100 101,1)]])],
-    writeln(ClassList),
+    
+    writeln('Data has been scraped. Creating schedule.'),
     start_scheduling(ClassList, CourseData, Schedule),
-    %  debugging purposes
     save_sched_to_file(Schedule),
-    writeln("finished"),
-    halt.
+    writeln("Finished!"),
+    abort.
 
 web_scraper_helper(DeptCourseNum, CourseData) :-
     split_string(DeptCourseNum, " ", "", [Dept, CourseNum]),
+    % compute the url of the course were registering
     url(Dept, CourseNum, URL),
+    % download the webpage and extract the data into components
     download_page(URL, HTML),
     extract_data(HTML, DeptCourseNum, CourseData),
+
+    % sleep so we dont get ip banned lol
     sleep(5).
 
