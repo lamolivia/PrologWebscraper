@@ -11,13 +11,17 @@ map_find_components([H|T], Data, L, L2) :-
     find_components(H, Data, [], H1).
 
 % FIND COMPONENTS 
-% searches for a class with the given name, and returns a list of its components.
+% returns all components in the list associated with a class of a given name
 find_components(_, [], [], []).
 find_components(_, [], L, L).
-find_components(Name, [component(Name, Type, Secs)|R], L, [component(Name, Type, Secs)|L1]) :-
+find_components(Name, [component(N1, _, _)|R], L, [component(N1, Type, Secs)|L1]) :-
+    Name =@= N1,
+    find_components(Name, R, L, L1).
+find_components(Name, [component(N1, _, _)|R], L, L1) :- 
     find_components(Name, R, L, L1).
 find_components(Name, [_|R], L, L1) :- 
     find_components(Name, R, L, L1).
+
 
 % MAKE SCHEDULE
 % creates a schedule for the user using the list of comopnents provided. with each component, it will check if a valid schedule can be made using the
@@ -59,5 +63,4 @@ remove_overlaps_list(SL, [component(Name, Type, Sec)|R], L, [component(Name, Typ
 % the main function to make a schedule.
 % the function takes a list of class names, and creates a schedule for the student including all of those classes.
 start_scheduling(Classes, Data, S) :-
-    make_schedule(C, [], S),
-    map_find_components(Classes, Data, [], C).
+    make_schedule(Data, [], S).
