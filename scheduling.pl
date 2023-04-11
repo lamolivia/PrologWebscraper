@@ -1,41 +1,23 @@
 :- module(scheduling).
 :- include(scheduleutils).
 
-/*
-% we read info from scraper here
-read_output_file(Lines) :-
-    open("output.txt", read, Stream),
-    read_lines(Stream, Lines),
-    close(Stream).
-
-read_lines(Stream, []) :-
-    at_end_of_stream(Stream).
-
-read_lines(Stream, [Line|Rest]) :-
-    \+ at_end_of_stream(Stream),
-    read_line_to_codes(Stream, Codes),
-    atom_codes(Line, Codes),
-    read_lines(Stream, Rest).
-
-% setting up the scheduling algorithm
-*/
-
-
-
-
 % MAP FIND COMPONENTS
 % converts the names of the courses into their components by searching components in the passed data.
 map_find_components([], Data, L, L).
 map_find_components([H|T], Data, L, L2) :-
     append(H1, L1, L2),
     map_find_components(T, Data, L, L1),
-    find_components(H, Data, H1).
+    find_components(H, Data, [], H1).
 
 % FIND COMPONENTS 
 % searches for a class with the given name, and returns a list of its components.
-find_components(_, [], []).
-find_components(Name, [class(Name, Components)|_], Components).
-find_components(Name, [_|R], C) :- find_components(Name, R, C).
+find_components(_, [], [], []).
+find_components(_, [], L, L).
+find_components(Name, [component(Name, Type, Secs)|R], L, [component(Name, Type, Secs)|L1]) :-
+    find_components(Name, R, L, L1).
+find_components(Name, [component(N1, _, _)|R], L, L1) :- 
+    Name \== N1,
+    find_components(Name, R, L, L1).
 
 % MAKE SCHEDULE
 % creates a schedule for the user using the list of comopnents provided. with each component, it will check if a valid schedule can be made using the

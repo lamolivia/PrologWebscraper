@@ -1,24 +1,39 @@
 :- begin_tests(scrape_course).
-:- include(scrape_course).
 
-test_html(Data) :- Data = '<html><body><table class="section-summary"><tr><td>My</td></tr><tr><td>Data</td></tr></table></body></html>'.
-test_url(URL) :- URL = "https:oliviastestingurl.com".
+test(remove_whitespace_char) :-
+    remove_whitespace_char(9),
+    remove_whitespace_char(10),
+    remove_whitespace_char(11),
+    remove_whitespace_char(12),
+    remove_whitespace_char(13),
+    remove_whitespace_char(32),
+    \+ remove_whitespace_char(0),
+    \+ remove_whitespace_char(foo).
+
+test(remove_whitespace) :-
+    remove_whitespace("  C P S C  3 1 2   ", "CPSC312").
+
+test(url) :-
+    url("CPSC", "312", URL),
+    assertion(URL == "https://courses-test.students.ubc.ca/cs/courseschedule?pname=subjarea&tname=subj-course&dept=CPSC&course=312").
 
 test(extract_data) :-
-    Expected = ['My', 'Data'],
-    test_html(HTML),
-    extract_data(HTML, Data),
-    assertion(Data == Expected).
+    load_html_file('test_data.html', HTML, []),
+    extract_data(HTML, "CPSC 210", Sections),
+    assertion(Sections == [
+    component("CPSC 210", "Lecture", 1, [[duration("12:30 PM", "1:50 PM", "Wed", "L1A")]])
+    ]).
 
-test(run_web_scraper) :-
-    Expected = ['My', 'Data'],
-    test_url(URL),
-    test_html(HTML),
-    download_page(URL, HTML),
-    extract_data(HTML, Data),
-    assertion(Data == ExpectedData),
-    save_html_to_file(Data),
-    assertion(read_file_to_string('output.txt', FileContent, []) == "My\nData\n").
-
+test(extract_section) :-
+    load_html_file('test_data.html', HTML, []),
+    xpath(HTML, //table(contains(@class,'section-summary')), Table),
+    extract_section(Table, "LEC", Start, End, Day, SectionName, Term),
+    assertion((
+        Start == "12:30 PM",
+        End == "1:50 PM",
+        Day == "Wed",
+        SectionName == "L1A",
+        Term == 1
+    )).
 
 :- end_tests(scrape_course).
