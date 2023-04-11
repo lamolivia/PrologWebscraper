@@ -3,7 +3,8 @@
 
 % MAP FIND COMPONENTS
 % converts the names of the courses into their components by searching components in the passed data.
-map_find_components([], Data, L, L).
+map_find_components(_, [], L, L).
+map_find_components([], _, L, L).
 map_find_components([H|T], Data, L, L2) :-
     append(H1, L1, L2),
     map_find_components(T, Data, L, L1),
@@ -15,8 +16,7 @@ find_components(_, [], [], []).
 find_components(_, [], L, L).
 find_components(Name, [component(Name, Type, Secs)|R], L, [component(Name, Type, Secs)|L1]) :-
     find_components(Name, R, L, L1).
-find_components(Name, [component(N1, _, _)|R], L, L1) :- 
-    Name \== N1,
+find_components(Name, [_|R], L, L1) :- 
     find_components(Name, R, L, L1).
 
 % MAKE SCHEDULE
