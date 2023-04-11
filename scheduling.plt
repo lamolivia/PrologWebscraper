@@ -19,13 +19,20 @@ test(find_components) :-
     ST1 = section(G, T1, T2, T, W1),
     ST2 = section(H, T3, T4, T, W1),
 
-    C1 = (CS312, Lecture, [[SM1, SW1, SF1], [SM2, SW2, SF2]]),
+    C1 = component(CS312, Lecture, [[SM1, SW1, SF1], [SM2, SW2, SF2]]),
+    C2 = component(CS312, Lab, [[W1]]),
     
-    Data = [class(CS312,[C1])],
+    Data1 = [C1, component(Test, Test, [])],
 
     R1 = [C1],
 
-    find_components(CS312, Data, R1).
+    find_components(CS312, Data1, [], R1),
+
+    Data2 = [C1, component(Test, Test, []), component(Test, Test, []), C2],
+
+    R2 = [C1, C2],
+
+    find_components(CS312, Data2, [], R2).
 
 test(map_find_components) :-
     T1 = clock_time(10,00),
@@ -46,12 +53,12 @@ test(map_find_components) :-
     ST1 = section(G, T1, T2, T, W1),
     ST2 = section(H, T3, T4, T, W1),
 
-    C1 = (CS312, Lecture, [[SM1, SW1, SF1], [SM2, SW2, SF2]]),
-    C2 = (CS313, Lecture, [[SM1, SW1, SF1]]),
-    C3 = (CS313, Lab, [[ST1], [ST2]]),
+    C1 = component(CS312, Lecture, [[SM1, SW1, SF1], [SM2, SW2, SF2]]),
+    C2 = component(CS313, Lecture, [[SM1, SW1, SF1]]),
+    C3 = component(CS313, Lab, [[ST1], [ST2]]),
 
     
-    Data = [class(CS312,[C1]), class(CS313, [C2, C3])],
+    Data = [C1, C2, C3],
 
     R1 = [C1, C2, C3],
     L1 = [CS312, CS313],

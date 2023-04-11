@@ -33,9 +33,13 @@ map_find_components([H|T], Data, L, L2) :-
 
 % FIND COMPONENTS 
 % searches for a class with the given name, and returns a list of its components.
-find_components(_, [], []).
-find_components(Name, [class(Name, Components)|_], Components).
-find_components(Name, [_|R], C) :- find_components(Name, R, C).
+find_components(_, [], [], []).
+find_components(_, [], L, L).
+find_components(Name, [component(Name, Type, Secs)|R], L, [component(Name, Type, Secs)|L1]) :-
+    find_components(Name, R, L, L1).
+find_components(Name, [component(N1, _, _)|R], L, L1) :- 
+    Name \== N1,
+    find_components(Name, R, L, L1).
 
 % MAKE SCHEDULE
 % creates a schedule for the user using the list of comopnents provided. with each component, it will check if a valid schedule can be made using the
