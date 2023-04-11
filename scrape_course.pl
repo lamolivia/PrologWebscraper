@@ -30,10 +30,12 @@ download_page(URL, HTML) :-
 
 extract_data(Html, CourseName, Sections) :-
     xpath(Html, //table(contains(@class,'section-summary')), Table),
-    findall(component(CourseName, Type, Term, [[duration(Start, End, Day, SectionName)]]), (
+    findall(component(CourseName, Type, [[section(SectionName, Start, End, Day,  Term)]]), (
         extract_section(Table, Type, Start,End,Day,SectionName, Term)
     ), Sections).
 
+to_clock_time(Text, Time) :-
+    split_string(Text, ":", "", Res).
 
 extract_section(Table, Type, Start, End, Day, SectionName, Term) :-
     xpath(Table, //tr(contains(@class,'section')), Section),
@@ -62,8 +64,11 @@ run_web_scraper :-
     foldl(append, ListOfCourseDataLists, [], CourseData),
     save_to_file(CourseData),
     %  this line causes stack overflows
-    start_scheduling(ClassList, CourseData, Schedule),
-    writeln(Schedule).
+    Example = [component(CPSC 001,Lecture,[[section(clock_time(15,00),clock_time(16,00),Mon,CPSC 100 101,1)]])],
+    start_scheduling(ClassList, Example, Schedule),
+    writeln(Schedule),
+    writeln("finished"),
+    halt.
 
 web_scraper_helper(DeptCourseNum, CourseData) :-
     split_string(DeptCourseNum, " ", "", [Dept, CourseNum]),
